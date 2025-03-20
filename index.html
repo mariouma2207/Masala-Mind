@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masala Mind Quiz</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:wght@500&display=swap');
+        
+        body {
+            background-color: #500014;
+            color: #FFD700;
+            font-family: 'Playfair Display', serif;
+            text-align: center;
+            transition: background-color 0.5s ease-in-out;
+        }
+        h2 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 2.5em;
+            animation: fadeIn 1.5s ease-in-out;
+        }
+        .quiz-container {
+            padding: 20px;
+            border-radius: 10px;
+            animation: slideUp 1s ease-out;
+            display: none;
+        }
+        .option-btn {
+            background: #FFD700;
+            color: #500014;
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .option-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px #FFD700;
+        }
+        .modal-content {
+            animation: fadeIn 0.8s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Masala Mind Quiz</h1>
+        <nav>
+            <a href="signup.html" class="option-btn">Sign Up</a>
+        </nav>
+    </header>
+
+    <div id="name-container">
+        <input type="text" id="player-name" placeholder="Enter your name" required />
+        <button id="start-quiz-btn">Start Quiz</button>
+    </div>
+    
+    <div class="quiz-container">
+        <h2 id="question">Loading...</h2>
+        <div class="answers-container"></div>
+        <p id="timer">Time Left: 10s</p>
+        <button id="next-btn" class="option-btn">Next</button>
+        <p id="score">Score: 0</p>
+        <button id="leaderboard-btn" class="option-btn">View Leaderboard</button>
+    </div>
+
+    <div id="leaderboard-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Leaderboard</h2>
+            <ol id="leaderboard-list"></ol>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const modal = document.getElementById("leaderboard-modal");
+            const leaderboardBtn = document.getElementById("leaderboard-btn");
+            const closeBtn = document.querySelector(".close-btn");
+            const leaderboardList = document.getElementById("leaderboard-list");
+            const nextBtn = document.getElementById("next-btn");
+            const questionElement = document.getElementById("question");
+            const answersContainer = document.querySelector(".answers-container");
+            const scoreElement = document.getElementById("score");
+            const timerElement = document.getElementById("timer");
+            let timer;
+            
+            let currentQuestionIndex = 0;
+            let score = 0;
+            let playerName = "";
+
+            const questions = [
+                {
+                    question: "Who is the actor in the movie 'Devdas'?",
+                    options: ["Shah Rukh Khan", "Salman Khan", "Amitabh Bachchan", "Ranbir Kapoor"],
+                    answer: "Shah Rukh Khan"
+                },
+                {
+                    question: "In which movie did Alia Bhatt play the role of Gangubai?",
+                    options: ["Gangubai Kathiawadi", "Raazi", "Highway", "Student of the Year"],
+                    answer: "Gangubai Kathiawadi"
+                }
+            ];
+    
+            function startTimer() {
+                let timeLeft = 10;
+                timerElement.textContent = `Time Left: ${timeLeft}s`;
+                timer = setInterval(() => {
+                    timeLeft--;
+                    timerElement.textContent = `Time Left: ${timeLeft}s`;
+                    if (timeLeft <= 0) {
+                        clearInterval(timer);
+                        nextBtn.click();
+                    }
+                }, 1000);
+            }
+    
+            function loadQuestion() {
+                clearInterval(timer);
+                startTimer();
+                const currentQuestion = questions[currentQuestionIndex];
+                questionElement.textContent = currentQuestion.question;
+                answersContainer.innerHTML = "";
+                currentQuestion.options.forEach(option => {
+                    const button = document.createElement("button");
+                    button.classList.add("option-btn");
+                    button.textContent = option;
+                    button.addEventListener("click", () => checkAnswer(option));
+                    answersContainer.appendChild(button);
+                });
+            }
+    
+            function checkAnswer(selectedAnswer) {
+                clearInterval(timer);
+                const correctAnswer = questions[currentQuestionIndex].answer;
+                if (selectedAnswer === correctAnswer) {
+                    score += 10;
+                }
+                scoreElement.textContent = `Score: ${score}`;
+                currentQuestionIndex++;
+    
+                if (currentQuestionIndex < questions.length) {
+                    loadQuestion();
+                } else {
+                    alert("Quiz over!");
+                    updateLeaderboard();
+                }
+            }
+    
+            function updateLeaderboard() {
+                let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+                leaderboard.push({ name: playerName, score });
+                leaderboard.sort((a, b) => b.score - a.score);
+                localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+            }
+    
+            leaderboardBtn.addEventListener("click", function() {
+                showLeaderboard();
+                modal.style.display = "block";
+            });
+    
+            closeBtn.addEventListener("click", function() {
+                modal.style.display = "none";
+            });
+    
+            function showLeaderboard() {
+                let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+                leaderboardList.innerHTML = "";
+                leaderboard.forEach(entry => {
+                    let li = document.createElement("li");
+                    li.textContent = `${entry.name}: ${entry.score}`;
+                    leaderboardList.appendChild(li);
+                });
+            }
+    
+            document.getElementById("start-quiz-btn").addEventListener("click", function() {
+                playerName = document.getElementById("player-name").value.trim();
+                if (playerName === "") {
+                    alert("Please enter your name to start the quiz!");
+                    return;
+                }
+                document.getElementById("name-container").style.display = "none";
+                document.querySelector(".quiz-container").style.display = "block";
+                loadQuestion();
+            });
+        });
+    </script>
+</body>
+</html>

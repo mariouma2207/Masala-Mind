@@ -1,0 +1,33 @@
+body {
+    background-color:#500014  ;
+}
+
+.center-container {
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    height: 100vh; /* Full height of the viewport */
+}
+
+/* Button Style */
+.button {
+    background: linear-gradient(145deg, #D4AF37, #B98A2B); /* Luxurious gold gradient */
+    color: #500014; /* Dark burgundy text */
+    font-family: 'Serif', serif; /* Elegant font */
+    padding: 12px 24px;
+    border: 2px solid #D4AF37; /* Gold border */
+    border-radius: 8px; /* Rounded corners */
+    text-align: center;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease; /* Smooth transition for hover effects */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+}
+
+/* Hover Effect */
+.button:hover {
+    background: linear-gradient(145deg, #B98A2B, #D4AF37); /* Reverse the gradient on hover for effect */
+    color: #500014; /* Keep text color the same */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
+    transform: translateY(-2px); /* Slight lift effect for hover */
+}
